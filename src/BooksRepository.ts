@@ -1,5 +1,9 @@
+import "reflect-metadata";
+import { injectable } from "inversify";
+
+const Books = require("../models/books");
+
 interface Book {
-    id: "string",
     title: "string",
     description: "string",
     authors: "string",
@@ -8,31 +12,54 @@ interface Book {
     fileName: "string"
 }
 
-abstract class BooksRepository {
-    book: {
-        title: "string",
-        description: "string",
-        authors: "string",
-        favorite: "string",
-        fileCover: "string",
-        fileName: "string"
-    }
-    id: "string";
+@injectable()
+export class BooksRepository {
+    async createBook(book: Book): Promise<any> {
+        try {
+            const newBook = new Books(book);
+            await newBook.save();
+            return newBook;
 
-    abstract createBook(book: {
-        title: "string",
-        description: "string",
-        authors: "string",
-        favorite: "string",
-        fileCover: "string",
-        fileName: "string"
-    }): Book;
+        } catch (e) {
+            console.log(e);
+        }   
+    };
 
-    abstract getBook(id: string): Book;
+    async getBook(id: string): Promise<any> {
+        try {
+            const book = await Books.findById(id).select('-__v');
+            return book;
 
-    abstract getBooks(): Book[];
+        } catch (e) {
+            console.log(e);
+        }   
+    };
 
-    abstract updateBook(id: string): Book;
+    async getBooks(): Promise<any> {
+        try {
+            const books = await Books.find().select('-__v');
+            return books;
 
-    abstract deleteBook(id: string): string;
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    async updateBook(id: string, book: Book): Promise<any> {
+        try {
+            await Books.findByIdAndUpdate(id, book);
+
+        } catch (e) {
+            console.log(e);
+        }   
+    };
+
+    async deleteBook(id: string): Promise<any> {
+        try {
+            await Books.deleteOne({_id: id});
+
+        } catch (e) {
+            console.log(e);
+        } 
+    };
 }
